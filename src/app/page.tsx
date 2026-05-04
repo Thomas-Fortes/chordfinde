@@ -17,20 +17,51 @@ export default function Home() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [flash, setFlash] = useState(false);
 
+  // "Frozen" result — keeps last detected note visible while fading out
+  const [frozenNote, setFrozenNote] = useState<string | null>(null);
+  const [resultOpacity, setResultOpacity] = useState(0);
+
   const lastHistoryNote = useRef<string | null>(null);
   const lastFlashNote = useRef<string | null>(null);
+  const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { micState, pitchResult, analyserRef, start, stop, errorMessage } = usePitchDetector();
   const instrument = getInstrument(instrumentId);
 
-  const chords = pitchResult.note ? getChordsForNote(pitchResult.note) : [];
+  // Use frozenNote for display so chord stays visible during fade-out
+  const displayNote = pitchResult.note ?? frozenNote;
+  const chords = displayNote ? getChordsForNote(displayNote) : [];
   const mainChord = chords[0] ?? null;
-
-  const displayNoteInfo = pitchResult.note
-    ? noteToDisplay(pitchResult.note, instrument.transpositionSemitones)
+  const displayNoteInfo = displayNote
+    ? noteToDisplay(displayNote, instrument.transpositionSemitones)
     : null;
 
   const isActive = micState === 'listening' || micState === 'weak' || micState === 'stable';
+
+  // Show / hide result with linger + fade
+  useEffect(() => {
+    if (micState === 'stable' && pitchResult.note) {
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      setFrozenNote(pitchResult.note);
+      setResultOpacity(1);
+    } else if (micState === 'idle') {
+      // Mic stopped — hide immediately
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      setResultOpacity(0);
+      clearTimerRef.current = setTimeout(() => setFrozenNote(null), 500);
+    } else if (!pitchResult.note && frozenNote) {
+      // Sound stopped but mic still on — linger 1.5s then fade out
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+      clearTimerRef.current = setTimeout(() => {
+        setResultOpacity(0);
+        clearTimerRef.current = setTimeout(() => setFrozenNote(null), 500);
+      }, 1500);
+    }
+    return () => {
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [micState, pitchResult.note]);
 
   // Flash on new note
   useEffect(() => {
@@ -144,49 +175,75 @@ export default function Home() {
         <div className="border-t border-border" />
 
         {/* ── Result ────────────────────────────────────── */}
-        {micState === 'stable' && pitchResult.note && displayNoteInfo ? (
-          <div className="flex flex-col gap-8">
-            {/* Detected note */}
-            <div className="flex items-end gap-8">
-              <div className="animate-fade-up">
-                <p className="text-xs font-mono tracking-widest text-text-dim mb-1">NOTE</p>
-                <p
-                  className="font-display text-text leading-none"
-                  style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', letterSpacing: '-0.02em' }}
-                >
-                  {toFrench(displayNoteInfo.instrument)}
-                </p>
-                {instrument.transpositionSemitones !== 0 && (
-                  <p className="text-xs font-mono text-text-dim mt-1">
-                    concert : {toFrench(displayNoteInfo.concert)}
+        <div className="relative" style={{ minHeight: '12rem' }}>
+          {/* Empty state — always rendered behind */}
+          <div
+            className="absolute inset-0 flex items-start justify-center pt-4"
+            style={{
+              opacity: resultOpacity > 0 ? 0 : 1,
+              transition: 'opacity 500ms ease-out',
+              pointerEvents: 'none',
+            }}
+            aria-hidden="true"
+          >
+            <p
+              className="font-display text-border"
+              style={{ fontSize: 'clamp(4rem, 12vw, 8rem)', letterSpacing: '-0.03em', lineHeight: 1 }}
+            >
+              —
+            </p>
+          </div>
+
+          {/* Result — fades in on note, lingers then fades out */}
+          <div
+            className="flex flex-col gap-8"
+            style={{
+              opacity: resultOpacity,
+              transition: 'opacity 500ms ease-out',
+              pointerEvents: resultOpacity > 0 ? 'auto' : 'none',
+            }}
+          >
+            {displayNoteInfo && (
+              <div className="flex items-end gap-8">
+                <div>
+                  <p className="text-xs font-mono tracking-widest text-text-dim mb-1">NOTE</p>
+                  <p
+                    className="font-display text-text leading-none"
+                    style={{ fontSize: 'clamp(2.5rem, 8vw, 4rem)', letterSpacing: '-0.02em' }}
+                  >
+                    {toFrench(displayNoteInfo.instrument)}
                   </p>
-                )}
+                  {instrument.transpositionSemitones !== 0 && (
+                    <p className="text-xs font-mono text-text-dim mt-1">
+                      concert : {toFrench(displayNoteInfo.concert)}
+                    </p>
+                  )}
+                </div>
+
+                {/* Live dot — only visible when actively stable */}
+                <div
+                  className="mb-2 w-2 h-2 rounded-full bg-accent"
+                  style={{
+                    boxShadow: '0 0 8px 2px #C8F562',
+                    opacity: micState === 'stable' ? 1 : 0,
+                    transition: 'opacity 600ms ease-out',
+                  }}
+                  aria-hidden="true"
+                />
               </div>
+            )}
 
-              {/* Clarity dot */}
-              <div
-                className="mb-2 w-2 h-2 rounded-full bg-accent animate-fade-up"
-                style={{
-                  boxShadow: '0 0 8px 2px #C8F562',
-                  animationDelay: '100ms',
-                }}
-                aria-hidden="true"
-              />
-            </div>
-
-            {/* Main chord */}
             {mainChord && (
               <ChordCard
                 chord={mainChord}
                 instrumentId={instrumentId}
                 transpositionSemitones={instrument.transpositionSemitones}
-                concertNote={pitchResult.note}
+                concertNote={displayNote ?? ''}
                 isMain
-                animKey={pitchResult.note}
+                animKey={displayNote ?? undefined}
               />
             )}
 
-            {/* Advanced chords */}
             {advancedMode && chords.length > 1 && (
               <div>
                 <p className="text-xs font-mono tracking-widest text-text-dim uppercase mb-4">
@@ -199,26 +256,15 @@ export default function Home() {
                       chord={chord}
                       instrumentId={instrumentId}
                       transpositionSemitones={instrument.transpositionSemitones}
-                      concertNote={pitchResult.note!}
-                      animKey={`${pitchResult.note}-${i}`}
+                      concertNote={displayNote ?? ''}
+                      animKey={`${displayNote}-${i}`}
                     />
                   ))}
                 </div>
               </div>
             )}
           </div>
-        ) : (
-          /* Empty state */
-          <div className="py-4 text-center">
-            <p
-              className="font-display text-border"
-              style={{ fontSize: 'clamp(4rem, 12vw, 8rem)', letterSpacing: '-0.03em', lineHeight: 1 }}
-              aria-hidden="true"
-            >
-              —
-            </p>
-          </div>
-        )}
+        </div>
 
         {/* ── Session history ───────────────────────────── */}
         <SessionHistory
