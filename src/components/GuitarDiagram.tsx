@@ -9,135 +9,92 @@ interface Props {
 
 const STRING_COUNT = 6;
 const FRET_COUNT = 4;
-const FRET_WIDTH = 38;
-const STRING_SPACING = 32;
-const TOP_PADDING = 36;
-const LEFT_PADDING = 28;
-const SVG_WIDTH = LEFT_PADDING + STRING_SPACING * (STRING_COUNT - 1) + LEFT_PADDING;
-const SVG_HEIGHT = TOP_PADDING + FRET_WIDTH * FRET_COUNT + 20;
-
-const FINGER_COLORS = ['', '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'];
+const FRET_H = 36;
+const STRING_GAP = 30;
+const PAD_X = 28;
+const PAD_Y = 34;
+const W = PAD_X + STRING_GAP * (STRING_COUNT - 1) + PAD_X;
+const H = PAD_Y + FRET_H * FRET_COUNT + 16;
 
 export default function GuitarDiagram({ shape, chordName }: Props) {
-  const baseFret = shape.baseFret ?? 1;
-  const normalizedFrets = shape.frets.map((f) => (f <= 0 ? f : f - baseFret + 1));
+  const base = shape.baseFret ?? 1;
+  const normalized = shape.frets.map((f) => (f <= 0 ? f : f - base + 1));
 
   return (
-    <div className="flex flex-col items-center gap-1">
-      <svg
-        width={SVG_WIDTH}
-        height={SVG_HEIGHT}
-        viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-        aria-label={`Diagramme d'accord ${chordName}`}
-      >
-        {/* Nut or base fret indicator */}
-        {baseFret === 1 ? (
-          <rect
-            x={LEFT_PADDING}
-            y={TOP_PADDING - 5}
-            width={STRING_SPACING * (STRING_COUNT - 1)}
-            height={6}
-            fill="#1e1b4b"
-            rx={2}
-          />
-        ) : (
-          <text
-            x={LEFT_PADDING - 6}
-            y={TOP_PADDING + FRET_WIDTH / 2}
-            textAnchor="end"
-            fontSize={11}
-            fill="#6b7280"
-          >
-            {baseFret}fr
-          </text>
-        )}
+    <svg
+      width={W}
+      height={H}
+      viewBox={`0 0 ${W} ${H}`}
+      aria-label={`Diagramme ${chordName}`}
+      className="mx-auto"
+    >
+      {/* Nut */}
+      {base === 1 ? (
+        <rect x={PAD_X} y={PAD_Y - 5} width={STRING_GAP * (STRING_COUNT - 1)} height={4} fill="#E8E8E8" opacity={0.6}/>
+      ) : (
+        <text x={PAD_X - 6} y={PAD_Y + FRET_H / 2 + 4} textAnchor="end" fontSize={10} fill="#555" fontFamily="monospace">
+          {base}fr
+        </text>
+      )}
 
-        {/* Fret lines */}
-        {Array.from({ length: FRET_COUNT }).map((_, fi) => (
-          <line
-            key={fi}
-            x1={LEFT_PADDING}
-            y1={TOP_PADDING + FRET_WIDTH * fi}
-            x2={LEFT_PADDING + STRING_SPACING * (STRING_COUNT - 1)}
-            y2={TOP_PADDING + FRET_WIDTH * fi}
-            stroke="#d1d5db"
-            strokeWidth={1}
-          />
-        ))}
-        <line
-          x1={LEFT_PADDING}
-          y1={TOP_PADDING + FRET_WIDTH * FRET_COUNT}
-          x2={LEFT_PADDING + STRING_SPACING * (STRING_COUNT - 1)}
-          y2={TOP_PADDING + FRET_WIDTH * FRET_COUNT}
-          stroke="#d1d5db"
-          strokeWidth={1}
+      {/* Fret lines */}
+      {Array.from({ length: FRET_COUNT + 1 }).map((_, i) => (
+        <line key={i}
+          x1={PAD_X} y1={PAD_Y + FRET_H * i}
+          x2={PAD_X + STRING_GAP * (STRING_COUNT - 1)} y2={PAD_Y + FRET_H * i}
+          stroke="#2A2A2A" strokeWidth={1}
         />
+      ))}
 
-        {/* String lines */}
-        {Array.from({ length: STRING_COUNT }).map((_, si) => (
-          <line
-            key={si}
-            x1={LEFT_PADDING + STRING_SPACING * si}
-            y1={TOP_PADDING}
-            x2={LEFT_PADDING + STRING_SPACING * si}
-            y2={TOP_PADDING + FRET_WIDTH * FRET_COUNT}
-            stroke="#9ca3af"
-            strokeWidth={1.5}
-          />
-        ))}
+      {/* Strings */}
+      {Array.from({ length: STRING_COUNT }).map((_, i) => (
+        <line key={i}
+          x1={PAD_X + STRING_GAP * i} y1={PAD_Y}
+          x2={PAD_X + STRING_GAP * i} y2={PAD_Y + FRET_H * FRET_COUNT}
+          stroke="#444" strokeWidth={1}
+        />
+      ))}
 
-        {/* Barre */}
-        {shape.barre !== undefined && (
-          <rect
-            x={LEFT_PADDING - 6}
-            y={TOP_PADDING + FRET_WIDTH * (shape.barre - baseFret) + 6}
-            width={STRING_SPACING * (STRING_COUNT - 1) + 12}
-            height={FRET_WIDTH - 12}
-            rx={(FRET_WIDTH - 12) / 2}
-            fill="#6366f1"
-            opacity={0.85}
-          />
-        )}
+      {/* Barre */}
+      {shape.barre !== undefined && (
+        <rect
+          x={PAD_X - 4}
+          y={PAD_Y + FRET_H * (shape.barre - base) + 6}
+          width={STRING_GAP * (STRING_COUNT - 1) + 8}
+          height={FRET_H - 12}
+          rx={(FRET_H - 12) / 2}
+          fill="#C8F562"
+          opacity={0.85}
+        />
+      )}
 
-        {/* Finger dots */}
-        {normalizedFrets.map((fret, si) => {
-          const x = LEFT_PADDING + STRING_SPACING * si;
-          if (fret <= 0) return null;
-          const y = TOP_PADDING + FRET_WIDTH * (fret - 1) + FRET_WIDTH / 2;
-          const finger = shape.fingers?.[si] ?? 0;
-          const color = FINGER_COLORS[finger] || '#6366f1';
+      {/* Dots */}
+      {normalized.map((fret, si) => {
+        if (fret <= 0) return null;
+        const x = PAD_X + STRING_GAP * si;
+        const y = PAD_Y + FRET_H * (fret - 1) + FRET_H / 2;
+        return (
+          <circle key={si} cx={x} cy={y} r={9} fill="#C8F562" opacity={0.9}/>
+        );
+      })}
+
+      {/* Open / muted */}
+      {normalized.map((fret, si) => {
+        const x = PAD_X + STRING_GAP * si;
+        const y = PAD_Y - 15;
+        if (fret === 0) {
+          return <circle key={si} cx={x} cy={y} r={5} fill="none" stroke="#E8E8E8" strokeWidth={1} opacity={0.5}/>;
+        }
+        if (fret === -1) {
           return (
             <g key={si}>
-              <circle cx={x} cy={y} r={10} fill={color} />
-              {finger > 0 && (
-                <text x={x} y={y + 4} textAnchor="middle" fontSize={11} fill="white" fontWeight="bold">
-                  {finger}
-                </text>
-              )}
+              <line x1={x-4} y1={y-4} x2={x+4} y2={y+4} stroke="#444" strokeWidth={1.5}/>
+              <line x1={x+4} y1={y-4} x2={x-4} y2={y+4} stroke="#444" strokeWidth={1.5}/>
             </g>
           );
-        })}
-
-        {/* Open / muted indicators above nut */}
-        {normalizedFrets.map((fret, si) => {
-          const x = LEFT_PADDING + STRING_SPACING * si;
-          const y = TOP_PADDING - 15;
-          if (fret === 0) {
-            return (
-              <circle key={si} cx={x} cy={y} r={6} fill="none" stroke="#6366f1" strokeWidth={2} />
-            );
-          }
-          if (fret === -1) {
-            return (
-              <g key={si}>
-                <line x1={x - 5} y1={y - 5} x2={x + 5} y2={y + 5} stroke="#ef4444" strokeWidth={2} />
-                <line x1={x + 5} y1={y - 5} x2={x - 5} y2={y + 5} stroke="#ef4444" strokeWidth={2} />
-              </g>
-            );
-          }
-          return null;
-        })}
-      </svg>
-    </div>
+        }
+        return null;
+      })}
+    </svg>
   );
 }

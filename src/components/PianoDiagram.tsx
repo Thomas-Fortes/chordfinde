@@ -1,70 +1,57 @@
 'use client';
 
 interface Props {
-  notes: string[]; // pitch classes to highlight, e.g. ["C", "E", "G"]
+  notes: string[];
   chordName: string;
 }
 
-// One octave: C to B, 12 keys
 const WHITE_KEYS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
-const BLACK_KEY_POSITIONS: Record<string, number> = {
+const BLACK_POSITIONS: Record<string, number> = {
   'C#': 0, 'D#': 1, 'F#': 3, 'G#': 4, 'A#': 5,
 };
-const BLACK_ENHARMONICS: Record<string, string> = {
-  'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+const ENHARMONICS: Record<string, string> = {
+  Db: 'C#', Eb: 'D#', Gb: 'F#', Ab: 'G#', Bb: 'A#',
 };
 
-const WHITE_W = 36;
-const WHITE_H = 120;
-const BLACK_W = 22;
-const BLACK_H = 72;
-const SVG_WIDTH = WHITE_W * 7;
-const SVG_HEIGHT = WHITE_H + 4;
+const WW = 34;
+const WH = 100;
+const BW = 20;
+const BH = 62;
+const SVG_W = WW * 7;
+const SVG_H = WH;
 
-function normalize(note: string): string {
-  return BLACK_ENHARMONICS[note] ?? note;
-}
+function norm(n: string) { return ENHARMONICS[n] ?? n; }
 
 export default function PianoDiagram({ notes, chordName }: Props) {
-  const normalizedNotes = notes.map(normalize);
+  const active = notes.map(norm);
 
   return (
     <svg
-      width={SVG_WIDTH}
-      height={SVG_HEIGHT}
-      viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
-      aria-label={`Touches piano pour l'accord ${chordName}`}
+      width={SVG_W}
+      height={SVG_H}
+      viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+      aria-label={`Touches piano — ${chordName}`}
+      className="mx-auto"
     >
       {/* White keys */}
       {WHITE_KEYS.map((key, i) => {
-        const highlighted = normalizedNotes.includes(key);
+        const on = active.includes(key);
         return (
           <g key={key}>
             <rect
-              x={i * WHITE_W}
-              y={0}
-              width={WHITE_W - 2}
-              height={WHITE_H}
-              rx={3}
-              fill={highlighted ? '#818cf8' : 'white'}
-              stroke="#d1d5db"
-              strokeWidth={1.5}
+              x={i * WW} y={0}
+              width={WW - 1} height={WH}
+              fill={on ? '#C8F562' : '#161616'}
+              stroke="#2A2A2A" strokeWidth={1}
             />
-            {highlighted && (
-              <circle
-                cx={i * WHITE_W + (WHITE_W - 2) / 2}
-                cy={WHITE_H - 18}
-                r={8}
-                fill="#4f46e5"
-              />
+            {on && (
+              <circle cx={i * WW + (WW - 1) / 2} cy={WH - 14} r={5} fill="#080808"/>
             )}
             <text
-              x={i * WHITE_W + (WHITE_W - 2) / 2}
-              y={WHITE_H - 4}
-              textAnchor="middle"
-              fontSize={9}
-              fill={highlighted ? '#312e81' : '#9ca3af'}
-              fontWeight={highlighted ? 'bold' : 'normal'}
+              x={i * WW + (WW - 1) / 2} y={WH - 4}
+              textAnchor="middle" fontSize={8}
+              fill={on ? '#080808' : '#333'}
+              fontFamily="monospace"
             >
               {key}
             </text>
@@ -73,26 +60,20 @@ export default function PianoDiagram({ notes, chordName }: Props) {
       })}
 
       {/* Black keys */}
-      {Object.entries(BLACK_KEY_POSITIONS).map(([key, pos]) => {
-        const highlighted = normalizedNotes.includes(key);
-        const x = pos * WHITE_W + WHITE_W - BLACK_W / 2;
+      {Object.entries(BLACK_POSITIONS).map(([key, pos]) => {
+        const on = active.includes(key);
+        const x = pos * WW + WW - BW / 2;
         return (
           <g key={key}>
             <rect
-              x={x}
-              y={0}
-              width={BLACK_W}
-              height={BLACK_H}
-              rx={2}
-              fill={highlighted ? '#818cf8' : '#1e1b4b'}
+              x={x} y={0}
+              width={BW} height={BH}
+              fill={on ? '#C8F562' : '#0A0A0A'}
+              stroke={on ? '#C8F562' : '#2A2A2A'}
+              strokeWidth={1}
             />
-            {highlighted && (
-              <circle
-                cx={x + BLACK_W / 2}
-                cy={BLACK_H - 14}
-                r={6}
-                fill="#4f46e5"
-              />
+            {on && (
+              <circle cx={x + BW / 2} cy={BH - 10} r={4} fill="#080808"/>
             )}
           </g>
         );

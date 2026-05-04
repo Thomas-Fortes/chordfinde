@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/Thomas Fortes/AppData/Roaming/Claude/local-agent-mode-sessions/skills-plugin/55655aa0-8d0d-4d4d-b75a-74a66dc21573/1b222e6d-7bc0-4633-92c3-e7117c4e224f/skills/docx/**)",
+      "Bash(python scripts/office/unpack.py \"C:\\\\Users\\\\Thomas Fortes\\\\Documents\\\\chordfinder\\\\chordfinder-cdc.docx\" unpacked_cdc/)",
+      "Bash(pandoc \"C:\\\\Users\\\\Thomas Fortes\\\\Documents\\\\chordfinder\\\\chordfinder-cdc.docx\" -o -)",
+      "Bash(cd /tmp)",
+      "Bash(cp \"C:\\\\Users\\\\Thomas Fortes\\\\Documents\\\\chordfinder\\\\chordfinder-cdc.docx\" cdc.docx)",
+      "Bash(unzip -o cdc.docx -d cdc_unpacked/)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Read(//c/Users/Thomas Fortes/Documents/**)",
+      "Bash(npx create-next-app@latest chordfinder-app --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git)",
+      "Bash(npm install *)",
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(ssh-keygen -t ed25519 -C \"tomtomfortes@gmail.com\" -f ~/.ssh/id_ed25519 -N \"\")",
+      "Bash(ssh -T git@github.com)"
+    ]
+  }
+}

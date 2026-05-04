@@ -9,12 +9,13 @@ interface PitchResult {
   frequency: number | null;
   note: string | null;
   clarity: number;
-  volume: number; // 0-1
+  volume: number;
 }
 
 interface UsePitchDetectorReturn {
   micState: MicState;
   pitchResult: PitchResult;
+  analyserRef: React.MutableRefObject<AnalyserNode | null>;
   start: () => Promise<void>;
   stop: () => void;
   errorMessage: string | null;
@@ -46,9 +47,9 @@ export function usePitchDetector(): UsePitchDetectorReturn {
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const animFrameRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const detectorRef = useRef<PitchDetector<Float32Array> | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
   const stableCountRef = useRef(0);
   const lastNoteRef = useRef<string | null>(null);
 
@@ -56,10 +57,6 @@ export function usePitchDetector(): UsePitchDetectorReturn {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
-    }
-    if (animFrameRef.current) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
     }
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
@@ -69,6 +66,7 @@ export function usePitchDetector(): UsePitchDetectorReturn {
       audioContextRef.current.close();
       audioContextRef.current = null;
     }
+    analyserRef.current = null;
     stableCountRef.current = 0;
     lastNoteRef.current = null;
     setMicState('idle');
@@ -94,6 +92,7 @@ export function usePitchDetector(): UsePitchDetectorReturn {
       const analyser = ctx.createAnalyser();
       analyser.fftSize = BUFFER_SIZE;
       source.connect(analyser);
+      analyserRef.current = analyser;
 
       const buffer = new Float32Array(BUFFER_SIZE);
       detectorRef.current = PitchDetector.forFloat32Array(BUFFER_SIZE);
@@ -103,7 +102,6 @@ export function usePitchDetector(): UsePitchDetectorReturn {
       intervalRef.current = setInterval(() => {
         analyser.getFloatTimeDomainData(buffer);
 
-        // Compute RMS volume
         let rms = 0;
         for (let i = 0; i < buffer.length; i++) rms += buffer[i] * buffer[i];
         rms = Math.sqrt(rms / buffer.length);
@@ -144,20 +142,18 @@ export function usePitchDetector(): UsePitchDetectorReturn {
       }, ANALYSIS_INTERVAL_MS);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('Permission') || msg.includes('permission') || msg.includes('denied')) {
-        setErrorMessage('Accès au microphone refusé. Veuillez autoriser l\'accès dans les paramètres de votre navigateur.');
+      if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('denied')) {
+        setErrorMessage("Accès au microphone refusé. Autorisez l'accès dans votre navigateur.");
       } else {
-        setErrorMessage('Impossible d\'accéder au microphone. Vérifiez qu\'un microphone est connecté.');
+        setErrorMessage("Impossible d'accéder au microphone. Vérifiez qu'un micro est connecté.");
       }
       setMicState('error');
     }
   }, [micState]);
 
   useEffect(() => {
-    return () => {
-      stop();
-    };
+    return () => { stop(); };
   }, [stop]);
 
-  return { micState, pitchResult, start, stop, errorMessage };
+  return { micState, pitchResult, analyserRef, start, stop, errorMessage };
 }

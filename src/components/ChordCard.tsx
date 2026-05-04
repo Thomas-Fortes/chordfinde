@@ -10,8 +10,9 @@ interface Props {
   chord: DetectedChord;
   instrumentId: InstrumentId;
   transpositionSemitones: number;
-  concertNote: string;  // e.g. "C4"
+  concertNote: string;
   isMain?: boolean;
+  animKey?: string;
 }
 
 export default function ChordCard({
@@ -20,68 +21,95 @@ export default function ChordCard({
   transpositionSemitones,
   concertNote,
   isMain = false,
+  animKey,
 }: Props) {
   const displayNotes = transpositionSemitones !== 0
     ? transposeNotes(chord.notes, transpositionSemitones)
     : chord.notes;
 
   const frenchNotes = displayNotes.map(toFrench);
-  const guitarShape = (instrumentId === 'guitar') ? getGuitarChord(chord.symbol) : null;
+  const guitarShape = instrumentId === 'guitar' ? getGuitarChord(chord.symbol) : null;
 
-  return (
-    <div
-      className={`
-        rounded-2xl border p-5 flex flex-col gap-4
-        ${isMain
-          ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-950/60 shadow-md'
-          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900'
-        }
-      `}
-    >
-      {/* Chord name */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span
-            className={`font-bold ${isMain ? 'text-4xl text-indigo-700 dark:text-indigo-300' : 'text-2xl text-gray-800 dark:text-gray-200'}`}
-          >
-            {chord.symbol}
-          </span>
-          <p className={`text-sm mt-0.5 ${isMain ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500'}`}>
-            {toFrench(chord.root)} {chord.quality}
-          </p>
+  if (isMain) {
+    return (
+      <div key={animKey} className="animate-clip-reveal">
+        {/* Big chord name — the "waouh" moment */}
+        <div className="flex items-end gap-6 mb-6">
+          <div>
+            <p className="text-xs font-mono tracking-widest text-text-dim mb-1">ACCORD</p>
+            <h2
+              className="font-display leading-none tracking-tight text-text"
+              style={{ fontSize: 'clamp(5rem, 15vw, 9rem)', letterSpacing: '-0.03em' }}
+            >
+              {chord.symbol}
+            </h2>
+          </div>
+          <div className="pb-3">
+            <p className="text-xs font-mono tracking-widest text-accent uppercase">
+              {chord.quality}
+            </p>
+            {transpositionSemitones !== 0 && (
+              <p className="text-xs font-mono text-text-dim mt-1">
+                concert : {toFrench(concertNote.replace(/\d/, ''))}
+              </p>
+            )}
+          </div>
         </div>
-        {isMain && transpositionSemitones !== 0 && (
-          <div className="text-right text-xs text-indigo-500 dark:text-indigo-400">
-            <p className="font-medium">Note concert</p>
-            <p>{concertNote.replace(/\d/, '')}</p>
+
+        {/* Notes */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {frenchNotes.map((n, i) => (
+            <span
+              key={i}
+              className="px-3 py-1 border border-border text-xs font-mono tracking-wider text-text-dim"
+            >
+              {n}
+            </span>
+          ))}
+        </div>
+
+        {/* Diagram */}
+        {instrumentId === 'guitar' && guitarShape && (
+          <div className="border border-border p-6 inline-block">
+            <GuitarDiagram shape={guitarShape} chordName={chord.symbol} />
+          </div>
+        )}
+        {instrumentId === 'piano' && (
+          <div className="border border-border p-4 inline-block overflow-x-auto max-w-full">
+            <PianoDiagram notes={chord.notes} chordName={chord.symbol} />
           </div>
         )}
       </div>
+    );
+  }
 
-      {/* Notes */}
+  // Secondary card (advanced mode)
+  return (
+    <div className="border border-border p-4 hover:border-[#3A3A3A] transition-colors duration-300 animate-fade-up">
+      <div className="flex items-baseline gap-2 mb-3">
+        <span className="font-display text-2xl text-text" style={{ letterSpacing: '-0.02em' }}>
+          {chord.symbol}
+        </span>
+        <span className="text-xs font-mono text-text-dim uppercase tracking-wider">
+          {chord.quality}
+        </span>
+      </div>
       <div className="flex flex-wrap gap-1.5">
         {frenchNotes.map((n, i) => (
-          <span
-            key={i}
-            className={`
-              px-2.5 py-0.5 rounded-full text-sm font-medium
-              ${isMain
-                ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
-              }
-            `}
-          >
+          <span key={i} className="text-xs font-mono text-text-dim border border-border px-2 py-0.5">
             {n}
           </span>
         ))}
       </div>
-
-      {/* Diagram */}
       {instrumentId === 'guitar' && guitarShape && (
-        <GuitarDiagram shape={guitarShape} chordName={chord.symbol} />
+        <div className="mt-4">
+          <GuitarDiagram shape={guitarShape} chordName={chord.symbol} />
+        </div>
       )}
       {instrumentId === 'piano' && (
-        <PianoDiagram notes={chord.notes} chordName={chord.symbol} />
+        <div className="mt-4 overflow-x-auto">
+          <PianoDiagram notes={chord.notes} chordName={chord.symbol} />
+        </div>
       )}
     </div>
   );

@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-accent: #C8F562;
+  --color-accent-dim: rgba(200, 245, 98, 0.15);
+  --color-surface: #111111;
+  --color-surface-alt: #161616;
+  --color-border: #2A2A2A;
+  --color-text: #E8E8E8;
+  --color-text-dim: #555555;
+  --font-display: var(--font-syne);
+  --font-mono: var(--font-space-mono);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ─── Reset & base ─────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+html { height: 100%; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: #080808;
+  color: #E8E8E8;
+  font-family: var(--font-space-mono), 'Courier New', monospace;
+  cursor: none;
+  min-height: 100%;
+  overflow-x: hidden;
 }
+
+/* Noise overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+}
+
+/* Vignette overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(ellipse 80% 80% at 50% 50%, transparent 30%, #080808 100%);
+  opacity: 0.65;
+}
+
+/* Show default cursor on touch devices */
+@media (pointer: coarse) {
+  body { cursor: auto; }
+}
+
+/* ─── Typography ──────────────────────────────────── */
+.font-display {
+  font-family: var(--font-syne), sans-serif;
+}
+
+/* ─── Animations & keyframes ──────────────────────── */
+@keyframes clip-reveal {
+  from { clip-path: inset(0 100% 0 0); opacity: 0; }
+  to   { clip-path: inset(0 0% 0 0);   opacity: 1; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.6; }
+  100% { transform: scale(1.8);  opacity: 0; }
+}
+
+@keyframes glow-flash {
+  0%   { opacity: 0; }
+  25%  { opacity: 0.12; }
+  100% { opacity: 0; }
+}
+
+@keyframes idle-breathe {
+  0%, 100% { opacity: 0.4; transform: scaleX(1); }
+  50%       { opacity: 0.7; transform: scaleX(1.02); }
+}
+
+.animate-clip-reveal {
+  animation: clip-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-up {
+  animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-glow-flash {
+  animation: glow-flash 0.4s ease-out forwards;
+}
+
+/* ─── Spring easing utility ───────────────────────── */
+.transition-spring {
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ─── Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: #111; }
+::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
