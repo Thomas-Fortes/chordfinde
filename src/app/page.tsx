@@ -23,7 +23,6 @@ export default function Home() {
 
   const lastHistoryNote = useRef<string | null>(null);
   const lastFlashNote = useRef<string | null>(null);
-  const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { micState, pitchResult, analyserRef, start, stop, errorMessage } = usePitchDetector();
   const instrument = getInstrument(instrumentId);
@@ -38,38 +37,41 @@ export default function Home() {
 
   const isActive = micState === 'listening' || micState === 'weak' || micState === 'stable';
 
-  // Show / hide result with linger + fade
+  // Note stable → show result immediately
   useEffect(() => {
     if (micState === 'stable' && pitchResult.note) {
-      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
       setFrozenNote(pitchResult.note);
       setResultOpacity(1);
-    } else if (micState === 'idle') {
-      // Mic stopped — hide immediately
-      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
-      setResultOpacity(0);
-      clearTimerRef.current = setTimeout(() => setFrozenNote(null), 500);
-    } else if (!pitchResult.note && frozenNote) {
-      // Sound stopped but mic still on — linger 1.5s then fade out
-      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
-      clearTimerRef.current = setTimeout(() => {
-        setResultOpacity(0);
-        clearTimerRef.current = setTimeout(() => setFrozenNote(null), 500);
-      }, 1500);
     }
-    return () => {
-      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [micState, pitchResult.note]);
 
-  // Flash on new note
+  // Mic stopped → hide immediately
+  useEffect(() => {
+    if (micState === 'idle') {
+      setResultOpacity(0);
+      const t = setTimeout(() => setFrozenNote(null), 500);
+      return () => clearTimeout(t);
+    }
+  }, [micState]);
+
+  // Sound stops but mic still on → linger 1.5s then fade
+  useEffect(() => {
+    if (!pitchResult.note && micState !== 'idle' && micState !== 'requesting') {
+      const t1 = setTimeout(() => {
+        setResultOpacity(0);
+        const t2 = setTimeout(() => setFrozenNote(null), 500);
+        return () => clearTimeout(t2);
+      }, 1500);
+      return () => clearTimeout(t1);
+    }
+  }, [pitchResult.note, micState]);
+
+  // Flash on new note — no cleanup so the timeout always fires
   useEffect(() => {
     if (micState === 'stable' && pitchResult.note && pitchResult.note !== lastFlashNote.current) {
       lastFlashNote.current = pitchResult.note;
       setFlash(true);
-      const t = setTimeout(() => setFlash(false), 400);
-      return () => clearTimeout(t);
+      setTimeout(() => setFlash(false), 400);
     }
   }, [micState, pitchResult.note]);
 
