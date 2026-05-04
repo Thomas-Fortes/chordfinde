@@ -137,12 +137,21 @@ export default function Home() {
         {/* ── Waveform hero ─────────────────────────────── */}
         <div className="flex flex-col items-center gap-6">
           {/* Waveform */}
-          <div className="w-full h-20 border border-border relative overflow-hidden">
+          <div className="w-full border border-border relative overflow-hidden" style={{ height: '5rem' }}>
             <Waveform analyserRef={analyserRef} active={isActive} />
             {/* Corner label */}
             <span className="absolute top-2 left-3 text-[9px] font-mono text-text-dim tracking-widest uppercase opacity-50">
               AUDIO
             </span>
+            {/* Volume bar — debug feedback that mic is capturing */}
+            {isActive && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-border">
+                <div
+                  className="h-full bg-accent transition-all duration-75"
+                  style={{ width: `${Math.min(pitchResult.volume * 800, 100)}%` }}
+                />
+              </div>
+            )}
           </div>
 
           {/* Mic button */}

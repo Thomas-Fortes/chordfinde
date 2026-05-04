@@ -22,9 +22,9 @@ interface UsePitchDetectorReturn {
 }
 
 const BUFFER_SIZE = 2048;
-const CLARITY_THRESHOLD = 0.93;
-const VOLUME_THRESHOLD = 0.01;
-const STABLE_FRAMES = 3;
+const CLARITY_THRESHOLD = 0.82;
+const VOLUME_THRESHOLD = 0.004;
+const STABLE_FRAMES = 2;
 const ANALYSIS_INTERVAL_MS = 50;
 
 function freqToNoteName(freq: number): string {
