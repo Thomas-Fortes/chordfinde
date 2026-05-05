@@ -54,11 +54,18 @@ export default function InstrumentsPage() {
           Instruments supportés
         </p>
         <h1 className="font-display text-3xl mb-4" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
-          ChordFinder par instrument
+          Guitare, piano, trompette — ChordFinder pour chaque instrument
         </h1>
-        <p className="text-sm font-mono leading-relaxed" style={{ color: '#999', maxWidth: '36rem' }}>
+        <p className="text-sm font-mono leading-relaxed mb-6" style={{ color: '#999', maxWidth: '38rem' }}>
           ChordFinder s'adapte à votre instrument. Chaque mode affiche les notes et accords dans
           votre tonalité native, avec la transposition automatique pour les instruments Si♭ et Mi♭.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#777', maxWidth: '40rem' }}>
+          La guitare bénéficie de diagrammes de doigtés SVG générés en temps réel — position
+          des doigts, cordes à vide, barrés. Le piano affiche les touches exactes à appuyer sur
+          une octave. Les instruments transpositeurs (trompette, clarinette, saxophone) voient
+          leurs notes affichées directement dans leur tonalité : un trompettiste Si♭ n'a pas
+          besoin de transposer mentalement, ChordFinder fait le calcul automatiquement.
         </p>
       </header>
 
@@ -134,14 +141,30 @@ export default function InstrumentsPage() {
         </div>
       </section>
 
-      <section className="border-t pt-10" style={{ borderColor: '#2A2A2A' }}>
+      <section className="border-t pt-10 space-y-5" style={{ borderColor: '#2A2A2A' }}>
         <h2 className="font-display text-xl mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
-          Comment fonctionne la transposition ?
+          Comment fonctionne la transposition dans ChordFinder ?
         </h2>
-        <p className="text-sm font-mono leading-relaxed mb-4" style={{ color: '#C8C8C8' }}>
-          ChordFinder détecte toujours la note concert (la vraie fréquence du son). Ensuite,
-          selon l'instrument sélectionné, il affiche la note transposée correspondante — c'est-à-dire
-          la note que vous devez voir sur votre partition ou jouer sur votre instrument.
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          ChordFinder détecte toujours la note concert — la vraie fréquence physique du son capté
+          par le micro. Ensuite, selon l'instrument sélectionné, il applique un décalage d'intervalle
+          pour afficher la note dans la tonalité de cet instrument. Pour une trompette Si♭, ce
+          décalage est de +2 demi-tons (une seconde majeure). Pour un saxophone alto Mi♭, il est
+          de +9 demi-tons (une sixte majeure).
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          Concrètement : vous fredonnez Do concert. Si vous êtes en mode Guitare ou Piano (Do
+          concert), l'app affiche Do. Si vous êtes en mode Trompette (Si♭), l'app affiche Ré —
+          la note que le trompettiste doit jouer pour sonner Do concert. Si vous êtes en mode
+          Saxophone Alto (Mi♭), l'app affiche La. L'accord suggéré est également transposé
+          dans la même tonalité.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          Cette fonctionnalité est particulièrement utile lors des répétitions en groupe mixte :
+          le guitariste joue un accord en Do concert, le trompettiste peut immédiatement savoir
+          quelle note jouer sans calcul mental, et le saxophoniste alto a aussi sa réponse.
+          ChordFinder devient un traducteur musical en temps réel entre les différentes tonalités
+          d'instruments.
         </p>
         <Link
           href="/guide/transposition-trompette"

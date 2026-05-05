@@ -151,6 +151,7 @@ function HomeContent() {
             style={{ fontSize: '1.1rem', letterSpacing: '0.15em' }}
           >
             ChordFinder
+            <span className="sr-only"> — Reconnaissance d'accords musicaux en temps réel</span>
           </h1>
           <button
             onClick={() => setAdvancedMode((v) => !v)}
@@ -361,6 +362,65 @@ function HomeContent() {
             </a>
           ))}
         </nav>
+
+        {/* ── SEO content ───────────────────────────────── */}
+        <section className="border-t pt-10 space-y-8" style={{ borderColor: '#1A1A1A' }}>
+          <div>
+            <h2 className="font-display text-lg mb-3" style={{ fontFamily: 'var(--font-syne)', color: '#444' }}>
+              Trouvez les accords en temps réel
+            </h2>
+            <p className="text-xs font-mono leading-relaxed" style={{ color: '#3A3A3A' }}>
+              ChordFinder est un outil de reconnaissance d'accords musicaux qui fonctionne
+              directement dans votre navigateur. Fredonnez une mélodie ou jouez une note sur
+              votre instrument devant le micro, et l'application identifie instantanément la
+              note et affiche les accords compatibles — avec diagramme de doigtés guitare ou
+              touches piano selon votre instrument.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="font-display text-lg mb-3" style={{ fontFamily: 'var(--font-syne)', color: '#444' }}>
+              Transposition automatique pour trompette, saxophone et clarinette
+            </h2>
+            <p className="text-xs font-mono leading-relaxed" style={{ color: '#3A3A3A' }}>
+              Les instruments transpositeurs (trompette Si♭, saxophone alto Mi♭, saxophone ténor,
+              clarinette Si♭) sont pris en charge nativement. Sélectionnez votre instrument dans
+              le menu et ChordFinder affiche directement la note dans votre tonalité — plus besoin
+              de transposer mentalement. Un trompettiste qui fredonne Do concert verra s'afficher
+              Ré, la note à jouer sur son instrument.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="font-display text-lg mb-3" style={{ fontFamily: 'var(--font-syne)', color: '#444' }}>
+              Comment utiliser ChordFinder
+            </h2>
+            <p className="text-xs font-mono leading-relaxed" style={{ color: '#3A3A3A' }}>
+              Appuyez sur le bouton micro, accordez les permissions, puis fredonnez ou jouez une
+              note. L'algorithme de détection de pitch analyse la fréquence en temps réel et
+              affiche l'accord principal ainsi que le diagramme de doigtés. En mode Avancé,
+              tous les accords contenant cette note sont listés — utile pour explorer les
+              substitutions harmoniques ou identifier des accords de passage dans une progression.
+              Aucune installation, aucun compte, aucune donnée envoyée sur Internet.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="font-display text-lg mb-3" style={{ fontFamily: 'var(--font-syne)', color: '#444' }}>
+              Pour guitaristes, pianistes et musiciens de tous niveaux
+            </h2>
+            <p className="text-xs font-mono leading-relaxed" style={{ color: '#3A3A3A' }}>
+              Que vous débutiez la guitare et cherchiez à identifier les accords d'une chanson,
+              ou que vous soyez musicien avancé cherchant à transposer rapidement une grille
+              d'accords pour un instrument Si♭, ChordFinder s'adapte à votre usage. Les
+              diagrammes SVG guitare couvrent les accords ouverts et barrés. Les visualisations
+              piano surlignent les touches exactes à appuyer. Consultez aussi nos{' '}
+              <a href="/guide" style={{ color: '#555' }}>guides musicaux</a> et les{' '}
+              <a href="/accords" style={{ color: '#555' }}>fiches d'accords</a> pour approfondir
+              votre théorie musicale.
+            </p>
+          </div>
+        </section>
 
       </div>
     </>

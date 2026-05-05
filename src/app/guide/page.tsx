@@ -60,11 +60,19 @@ export default function GuidePage() {
           Ressources
         </p>
         <h1 className="font-display text-3xl mb-4" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
-          Guides musicaux
+          Guides musicaux — Accords, guitare et transposition
         </h1>
-        <p className="text-sm font-mono leading-relaxed" style={{ color: '#999', maxWidth: '36rem' }}>
-          Des ressources pratiques pour progresser en musique, comprendre les accords et tirer
-          le meilleur parti de ChordFinder.
+        <p className="text-sm font-mono leading-relaxed mb-6" style={{ color: '#999', maxWidth: '38rem' }}>
+          Des ressources pratiques pour musiciens francophones : apprendre à identifier les accords
+          d'une chanson, maîtriser les premiers doigtés de guitare, comprendre la transposition
+          des instruments Si♭ et Mi♭.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#777', maxWidth: '40rem' }}>
+          Ces guides sont conçus pour accompagner l'utilisation de ChordFinder mais restent utiles
+          indépendamment de l'application. Que vous ayez une mélodie en tête et cherchiez à la
+          mettre en accords, que vous débutiez la guitare et vouliez apprendre les 10 accords
+          essentiels, ou que vous jouiez d'un instrument transpositeur et ayez du mal avec les
+          correspondances de notes — vous trouverez ici des réponses claires et pratiques.
         </p>
       </header>
 
@@ -100,8 +108,25 @@ export default function GuidePage() {
         ))}
       </div>
 
-      <section className="mt-16 border-t pt-12" style={{ borderColor: '#2A2A2A' }}>
-        <h2 className="font-display text-xl mb-6" style={{ fontFamily: 'var(--font-syne)' }}>
+      <section className="mt-16 border-t pt-12 space-y-6" style={{ borderColor: '#2A2A2A' }}>
+        <h2 className="font-display text-xl mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
+          Pourquoi apprendre la théorie musicale pratique ?
+        </h2>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          La théorie musicale n'a pas besoin d'être académique pour être utile. Connaître les
+          progressions d'accords les plus courantes (I–IV–V, I–V–VI–IV) vous permet de déchiffrer
+          la majorité des chansons populaires en quelques minutes. Comprendre pourquoi un accord
+          mineur "sonne triste" ou pourquoi un accord de dominante "appelle la résolution" vous
+          aide à composer et à improviser avec plus d'intention.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          Pour les musiciens qui jouent en groupe, comprendre la transposition évite des
+          malentendus coûteux en répétition. Un trompettiste et un guitariste qui ne parlent
+          pas le même "langage de notes" perdront un temps précieux à se recaler. Les guides
+          de transposition disponibles ici vous donnent les outils pour communiquer efficacement,
+          quelle que soit la formation.
+        </p>
+        <h2 className="font-display text-xl mb-4 mt-4" style={{ fontFamily: 'var(--font-syne)' }}>
           Explorer par accord
         </h2>
         <p className="text-sm font-mono mb-6" style={{ color: '#777' }}>

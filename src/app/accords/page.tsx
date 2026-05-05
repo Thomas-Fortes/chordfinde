@@ -43,11 +43,19 @@ export default function AccordsPage() {
           Référence
         </p>
         <h1 className="font-display text-3xl mb-4" style={{ fontFamily: 'var(--font-syne)', letterSpacing: '-0.02em' }}>
-          Tous les accords
+          Fiches d'accords guitare et piano
         </h1>
-        <p className="text-sm font-mono leading-relaxed" style={{ color: '#999', maxWidth: '36rem' }}>
-          24 fiches complètes — les 12 accords majeurs et 12 mineurs fondamentaux. Notes, diagrammes
-          guitare, touches piano, accords proches et FAQ.
+        <p className="text-sm font-mono leading-relaxed mb-6" style={{ color: '#999', maxWidth: '36rem' }}>
+          24 fiches complètes — les 12 accords majeurs et 12 mineurs fondamentaux. Pour chaque accord :
+          notes composantes, diagramme de doigtés guitare, visualisation piano, accords proches et FAQ.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#777', maxWidth: '40rem' }}>
+          Un accord est une combinaison d'au moins trois notes jouées simultanément. Les accords majeurs
+          (Do, Ré, Mi, Fa, Sol, La, Si) sonnent lumineux et stables. Les accords mineurs (Do mineur,
+          Ré mineur, etc.) ont une couleur plus sombre et mélancolique. La seule différence entre un
+          accord majeur et son homologue mineur est la tierce : majeure (2 tons) ou mineure (1 ton et demi).
+          Maîtriser ces 24 accords de base vous permet de jouer l'immense majorité des chansons pop,
+          rock, folk et jazz.
         </p>
       </header>
 
@@ -105,19 +113,33 @@ export default function AccordsPage() {
         </div>
       </section>
 
-      <section className="border-t pt-10" style={{ borderColor: '#2A2A2A' }}>
+      <section className="border-t pt-10 space-y-6" style={{ borderColor: '#2A2A2A' }}>
         <h2 className="font-display text-xl mb-4" style={{ fontFamily: 'var(--font-syne)' }}>
-          Comment utiliser ces fiches
+          Comment lire une fiche d'accord
         </h2>
-        <p className="text-sm font-mono leading-relaxed mb-4" style={{ color: '#C8C8C8' }}>
-          Chaque fiche présente les notes qui composent l'accord, un diagramme de doigtés pour
-          la guitare, les touches correspondantes sur le piano, les accords proches (pour progresser
-          harmoniquement), et une FAQ avec les questions les plus fréquentes.
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          Chaque fiche présente les notes qui composent l'accord (fondamentale, tierce, quinte),
+          un diagramme de doigtés SVG pour la guitare avec indication des cordes à vide, muettes
+          et du barré éventuel, les touches correspondantes sur le clavier de piano, les accords
+          proches pour progresser harmoniquement, et une FAQ avec les questions les plus fréquentes.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          Pour les guitaristes débutants, commencez par les accords ouverts : Mi majeur, La majeur,
+          Ré majeur et leurs versions mineures. Ces accords utilisent des cordes à vide qui
+          compensent les imperfections de doigté et sonnent naturellement plein. Passez aux barrés
+          (Fa majeur, Si mineur) une fois ces bases maîtrisées.
+        </p>
+        <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
+          Pour les pianistes, chaque fiche montre les touches exactes à appuyer sur une octave.
+          Les notes blanches et noires sont surlignées pour visualiser immédiatement la position
+          de la main. Les accords majeurs et mineurs partagent souvent deux notes sur trois — ce
+          qui facilite le passage de l'un à l'autre sur un clavier.
         </p>
         <p className="text-sm font-mono leading-relaxed" style={{ color: '#C8C8C8' }}>
           Pour détecter un accord en temps réel à partir de votre instrument ou de votre voix,
           utilisez l'application interactive — elle identifie la note et vous propose l'accord
-          instantanément, avec diagramme inclus.
+          instantanément, avec diagramme inclus et transposition automatique pour les instruments
+          Si♭ (trompette, clarinette, saxophone ténor) et Mi♭ (saxophone alto).
         </p>
       </section>
     </ContentLayout>
