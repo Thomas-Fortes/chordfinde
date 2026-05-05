@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { usePitchDetector } from '@/hooks/usePitchDetector';
 import { getChordsForNote, noteToDisplay, toFrench } from '@/lib/musicTheory';
-import { getInstrument, InstrumentId } from '@/lib/instruments';
+import { getInstrument, InstrumentId, INSTRUMENTS } from '@/lib/instruments';
 import CustomCursor from '@/components/CustomCursor';
 import Waveform from '@/components/Waveform';
 import InstrumentSelector from '@/components/InstrumentSelector';
@@ -11,11 +12,16 @@ import MicButton from '@/components/MicButton';
 import ChordCard from '@/components/ChordCard';
 import SessionHistory, { HistoryEntry } from '@/components/SessionHistory';
 
-export default function Home() {
-  const [instrumentId, setInstrumentId] = useState<InstrumentId>('guitar');
+function HomeContent() {
+  const searchParams = useSearchParams();
+  const initialInstrument = (searchParams.get('instrument') as InstrumentId | null) ?? 'guitar';
+  const validInstrument = INSTRUMENTS.some((i) => i.id === initialInstrument) ? initialInstrument : 'guitar';
+
+  const [instrumentId, setInstrumentId] = useState<InstrumentId>(validInstrument);
   const [advancedMode, setAdvancedMode] = useState(false);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [flash, setFlash] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // "Frozen" result — keeps last detected note visible while fading out
   const [frozenNote, setFrozenNote] = useState<string | null>(null);
@@ -36,6 +42,16 @@ export default function Home() {
     : null;
 
   const isActive = micState === 'listening' || micState === 'weak' || micState === 'stable';
+
+  function shareCurrentResult() {
+    if (!displayNote || !mainChord) return;
+    const note = displayNote.replace(/\d/, '');
+    const url = `${window.location.origin}/?note=${encodeURIComponent(note)}&instrument=${instrumentId}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }
 
   // Note stable → show result immediately
   useEffect(() => {
@@ -90,8 +106,29 @@ export default function Home() {
     }
   }, [micState, mainChord, pitchResult.note, displayNoteInfo]);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: 'ChordFinder',
+    description: 'Application de reconnaissance d\'accords musicaux en temps réel',
+    applicationCategory: 'MusicApplication',
+    operatingSystem: 'Web Browser',
+    inLanguage: 'fr',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
+    featureList: [
+      'Détection d\'accords en temps réel',
+      'Transposition automatique trompette Si♭',
+      'Diagrammes guitare et piano',
+      'Saxophone alto, ténor, clarinette',
+    ],
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <CustomCursor />
 
       {/* Accent flash on new detection */}
@@ -274,6 +311,22 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {/* Share button — visible when a result is shown */}
+            {mainChord && (
+              <div className="flex justify-end">
+                <button
+                  onClick={shareCurrentResult}
+                  className="text-xs font-mono tracking-wider px-3 py-1.5 border transition-all duration-200 hover:-translate-y-px focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+                  style={{
+                    borderColor: copied ? '#C8F562' : '#2A2A2A',
+                    color: copied ? '#C8F562' : '#555',
+                  }}
+                >
+                  {copied ? '✓ Lien copié' : 'Partager cet accord'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -286,7 +339,38 @@ export default function Home() {
           }}
         />
 
+        {/* ── Content nav ───────────────────────────────── */}
+        <nav
+          className="border-t pt-6 flex flex-wrap gap-x-6 gap-y-2"
+          style={{ borderColor: '#1A1A1A' }}
+          aria-label="Ressources"
+        >
+          {[
+            { href: '/guide', label: 'Guides' },
+            { href: '/accords', label: 'Fiches accords' },
+            { href: '/instruments', label: 'Instruments' },
+            { href: '/comment-ca-marche', label: 'Comment ça marche' },
+          ].map(({ href, label }) => (
+            <a
+              key={href}
+              href={href}
+              className="text-xs font-mono tracking-wider transition-colors hover:text-text"
+              style={{ color: '#333' }}
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+
       </div>
     </>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
+    </Suspense>
   );
 }

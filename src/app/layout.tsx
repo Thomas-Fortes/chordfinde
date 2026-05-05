@@ -14,10 +14,57 @@ const spaceMono = Space_Mono({
   weight: ['400', '700'],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://chordfinder.app';
+
 export const metadata: Metadata = {
-  title: 'ChordFinder — Reconnaissance musicale',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'ChordFinder — Trouvez les accords en temps réel',
+    template: '%s — ChordFinder',
+  },
   description:
-    'Fredonnez une mélodie et obtenez les accords compatibles en temps réel. Supporte la transposition pour trompette, saxophone, clarinette et plus.',
+    'Fredonnez une mélodie, obtenez les accords instantanément. Guitare, piano, trompette. Transposition automatique incluse. Gratuit, sans compte.',
+  keywords: ['accords', 'guitare', 'piano', 'transposition', 'trompette', 'reconnaissance musicale'],
+  authors: [{ name: 'ChordFinder' }],
+  creator: 'ChordFinder',
+  openGraph: {
+    type: 'website',
+    locale: 'fr_FR',
+    url: SITE_URL,
+    siteName: 'ChordFinder',
+    title: 'ChordFinder — Trouvez les accords en temps réel',
+    description:
+      'Fredonnez une mélodie, obtenez les accords instantanément. Guitare, piano, trompette. Transposition automatique incluse.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'ChordFinder — Reconnaissance musicale en temps réel',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'ChordFinder — Trouvez les accords en temps réel',
+    description:
+      'Fredonnez une mélodie, obtenez les accords instantanément. Guitare, piano, trompette.',
+    images: ['/og-image.png'],
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
